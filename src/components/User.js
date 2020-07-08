@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useReducer, useEffect } from 'react';
 import queryString from 'query-string';
 
 import { getUserById, getStories } from '../services/api';
@@ -18,65 +18,81 @@ const UserInfo = ({ id, created, karma, about }) => {
 	);
 };
 
-class User extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			user: null,
-			userStories: [],
-			isLoadingUserInfo: true,
-			isLoadingUserStories: true,
-			isError: false,
-		};
+const userReducer = (state, action) => {
+	switch (action.type) {
+		case 'FETCH_SUCCESS':
+			return {
+				...state,
+				user: action.payload,
+				isLoadingUserInfo: false,
+			};
+		default:
+			return { ...state };
 	}
+};
 
-	componentDidMount() {
-		const { id } = queryString.parse(this.props.location.search);
+const userStoriesReducer = (state, action) => {
+	switch (action.type) {
+		case 'FETCH_SUCCESS':
+			return {
+				...state,
+				userStories: [...action.payload],
+				isLoadingUserStories: false,
+				isError: false,
+			};
+		case 'FETCH_ERROR':
+			return {
+				...state,
+				isError: true,
+				isLoadingUserInfo: false,
+				isLoadingUserStories: false,
+			};
+		default:
+			return { ...state };
+	}
+};
+
+const User = ({ location }) => {
+	const [{ user, isLoadingUserInfo }, dispatchUser] = useReducer(userReducer, {
+		user: null,
+		isLoadingUserInfo: true,
+	});
+
+	const [{ userStories, isLoadingUserStories, isError }, dispatchStories] = useReducer(userStoriesReducer, {
+		userStories: [],
+		isLoadingUserStories: true,
+		isError: false,
+	});
+
+	useEffect(() => {
+		const { id } = queryString.parse(location.search);
 
 		getUserById(id)
-			.then(res => {
-				this.setState({ user: res, isLoadingUserInfo: false });
-
-				return getStories(res.submitted);
+			.then(user => {
+				dispatchUser({ type: 'FETCH_SUCCESS', payload: user });
+				return getStories(user.submitted);
 			})
-			.then(res =>
-				this.setState({
-					userStories: res,
-					isLoadingUserStories: false,
-					isError: false,
-				})
-			)
-			.catch(() =>
-				this.setState({
-					user: null,
-					isError: true,
-					isLoadingUserInfo: false,
-					isLoadingUserStories: false,
-				})
-			);
-	}
+			.then(stories => dispatchStories({ type: 'FETCH_SUCCESS', payload: stories }))
+			.catch(() => dispatchStories({ type: 'FETCH_ERROR' }));
+	}, [location]);
 
-	render() {
-		const { user, userStories, isLoadingUserInfo, isLoadingUserStories, isError } = this.state;
-		return (
-			<React.Fragment>
-				{isLoadingUserInfo ? (
-					<Loading message="Loading" speed={300} />
-				) : (
-					<React.Fragment>
-						<UserInfo {...user} />
-						<section>
-							<h2>Stories</h2>
-							{isLoadingUserStories && <Loading message={`Loading user stories`} speed={300} />}
-							<StoryList stories={userStories} />
-						</section>
-					</React.Fragment>
-				)}
-				{isError && <h2 className="text-center">An error ocurred</h2>}
-			</React.Fragment>
-		);
-	}
-}
+	return (
+		<React.Fragment>
+			{isLoadingUserInfo ? (
+				<Loading message="Loading" speed={300} />
+			) : (
+				<React.Fragment>
+					<UserInfo {...user} />
+					<section>
+						<h2>Stories</h2>
+						{isLoadingUserStories && <Loading message={`Loading user stories`} speed={300} />}
+						<StoryList stories={userStories} />
+					</section>
+				</React.Fragment>
+			)}
+			{isError && <h2 className="text-center">An error ocurred</h2>}
+		</React.Fragment>
+	);
+};
 
 export default User;
