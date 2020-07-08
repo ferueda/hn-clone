@@ -10,6 +10,7 @@ body,
 	margin: 0;
 	height: 100%;
 	width: 100%;
+	padding: 0;
 }
 
 body {
@@ -30,6 +31,12 @@ h2 {
 	margin-bottom: 5px;
 }
 
+.dark {
+	background: var(--midnight-blue);
+	color: #fff;
+	min-height: 100%;
+}
+
 .flex {
 	display: flex;
 }
@@ -39,7 +46,7 @@ h2 {
 }
 
 .nav-container {
-	margin-top: 20px;
+	padding-top: 20px;
 }
 
 .nav-item {
@@ -55,12 +62,13 @@ h2 {
 
 .btn-clear {
 	background: inherit;
+	border: none;
+	outline: none;
 }
 
 .container {
 	max-width: 1000px;
 	padding: 0 40px;
-	height: 100vh;
 	margin: 0 auto;
 }
 
@@ -76,6 +84,10 @@ h2 {
 
 .story-meta {
 	color: var(--gray);
+}
+
+.dark-theme-text {
+	color: #fff;
 }
 
 .text-center {
