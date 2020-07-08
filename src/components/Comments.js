@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Comments = ({ comments }) => {
-	console.log(comments);
 	return (
 		<React.Fragment>
 			{comments.map(({ id, by, time, text }) => {
@@ -11,7 +10,6 @@ const Comments = ({ comments }) => {
 						<div className="story-meta">
 							by{' '}
 							<Link className="secondary-link" to={`user?id=${by}`}>
-								{' '}
 								{by}
 							</Link>{' '}
 							on {new Date(time * 1000).toLocaleString()}
