@@ -1,38 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-class Loading extends React.Component {
-	constructor(props) {
-		super(props);
+const Loading = ({ text = 'Loading', speed = 300 }) => {
+	const [message, setMessage] = useState(text);
 
-		this.state = {
-			message: props.message,
-		};
-	}
-
-	componentDidMount() {
-		const { message, speed } = this.props;
-
-		this.interval = window.setInterval(() => {
-			if (this.state.message === message + '...') {
-				this.setState({
-					message: message,
-				});
-			} else {
-				this.setState({
-					message: this.state.message + '.',
-				});
-			}
+	useEffect(() => {
+		const interval = window.setInterval(() => {
+			setMessage(message => (message === `${text}...` ? text : `${message}.`));
 		}, speed);
-	}
 
-	componentWillUnmount() {
-		window.clearInterval(this.interval);
-	}
-
-	render() {
-		const { message } = this.state;
-		return <h2 className="text-center">{message}</h2>;
-	}
-}
+		return () => window.clearInterval(interval);
+	}, [text, speed]);
+	return <h2 className="text-center">{message}</h2>;
+};
 
 export default Loading;
