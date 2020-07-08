@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaMoon, FaSun } from 'react-icons/fa';
+
+import ThemeContext from '../context/ThemeContext';
 
 const activeStyle = {
 	color: 'var(--main-red)',
 };
 
-const Nav = ({ theme, toggleTheme }) => {
+const Nav = ({ toggleTheme }) => {
+	const theme = useContext(ThemeContext);
+
 	return (
 		<nav className="nav-container flex space-between">
 			<ul className="flex">
